@@ -16,3 +16,15 @@ def load_all_stock_basic():
 def load_exchange_calendar():
     days = tu.read_exchange_calendar()
     dao.add_item_list(days)
+
+
+def load_stock_day_lines(start_date, end_date):
+    stocks = dao.get_stock_tscode_all()
+    for stock in stocks:
+        lines = tu.read_stock_day_line(stock.ts_code, start_date, end_date)
+        dao.add_item_list(lines)
+
+
+def load_stock_day_lines_oneday(date):
+    lines = tu.read_stock_day_line_one(date)
+    dao.add_item_list(lines)

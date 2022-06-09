@@ -2,6 +2,7 @@ import sys
 import traceback
 
 import sqlalchemy
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from sqlalchemy.sql import func
@@ -26,6 +27,8 @@ def session_scope():
     try:
         yield session
         session.commit()
+    except IntegrityError as integrity_err:
+        logging.debug("Data base integrity exception: " + str(integrity_err))
     except Exception as err:
         logging.debug("Database operation exception: " + str(err))
         session.rollback()
@@ -60,8 +63,7 @@ def add_stock_basic(items):
 def update_stock_basic(item):
     logging.debug("update item...")
     with session_scope() as session:
-        instance = session.query(stock.StockBasic).filter(stock.StockBasic.ts_code == item.ts_code)\
-            .filter(stock.StockBasic.hash != item.hash).first()
+        instance = session.query(stock.StockBasic).filter(stock.StockBasic.ts_code == item.ts_code).first()
         if instance:
             if instance.hash != item.hash:
                 session.query(stock.StockBasic).filter(stock.StockBasic.ts_code == item.ts_code) \
@@ -72,7 +74,30 @@ def update_stock_basic(item):
             add_one_item(item)
 
 
+def update_stock_day_line(item):
+    logging.debug("update day line...")
+    with session_scope() as session:
+        instance = session.query(stock.StockDailyLine).filter(stock.StockDailyLine.ts_code == item.ts_code).first()
+        if instance:
+            if instance.close != item.close:
+                session.query(stock.StockDailyLine).filter(stock.StockDailyLine.ts_code == item.ts_code) \
+                    .update({'trade_date': item.trade_date, 'open': item.open, 'high': item.high,
+                             'low': item.low, 'close': item.close, 'pre_close': item.pre_close,
+                             'change': item.change, 'pct_chg': item.pct_chg, 'vol': item.vol,
+                             'amount': item.amount})
+        else:
+            add_one_item(item)
+
+
 def get_stock_basic_all():
+    logging.debug("get all recorded stocks")
     with session_scope() as session:
         result = session.query(stock.StockBasic).all()
+        return result
+
+
+def get_stock_tscode_all():
+    logging.debug("get all recoreded tscode")
+    with session_scope() as session:
+        result = session.query(stock.StockBasic.ts_code).all()
         return result
