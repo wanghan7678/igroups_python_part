@@ -29,10 +29,7 @@ def session_scope():
         session.commit()
     except IntegrityError as integrity_err:
         logging.debug("Data base integrity exception: " + str(integrity_err))
-    except Exception as err:
-        logging.debug("Database operation exception: " + str(err))
-        session.rollback()
-        raise
+        print("Data base integrity exception: " + str(integrity_err))
     finally:
         session.close()
 
@@ -97,7 +94,41 @@ def get_stock_basic_all():
 
 
 def get_stock_tscode_all():
-    logging.debug("get all recoreded tscode")
+    logging.debug("get all recorded tscode")
     with session_scope() as session:
         result = session.query(stock.StockBasic.ts_code).all()
+        return result
+
+
+def get_day_lines_close(ts_code, trade_date, back_days):
+    logging.debug("get last $days from $today: ", back_days, trade_date)
+    with session_scope() as session:
+        result = session.query(stock.StockDailyLine.close).filter(stock.StockDailyLine.ts_code == ts_code).filter(
+            stock.StockDailyLine.trade_date <= trade_date).order_by(stock.StockDailyLine.trade_date.desc()).limit(
+            back_days).all()
+        return result
+
+
+def get_day_lines_4prices(ts_code, trade_date, back_days):
+    logging.debug("get last $days from $today: ", back_days, trade_date)
+    with session_scope() as session:
+        result = session.query(stock.StockDailyLine.close, stock.StockDailyLine.open, stock.StockDailyLine.high, stock.StockDailyLine.low).filter(stock.StockDailyLine.ts_code == ts_code).filter(
+            stock.StockDailyLine.trade_date <= trade_date).order_by(stock.StockDailyLine.trade_date.desc()).limit(
+            back_days).all()
+        return result
+
+
+def get_stock_day_lines_one_day(trade_date):
+    logging.debug("get all day line data for $today: ", trade_date)
+    with session_scope() as session:
+        result = session.query(stock.StockDailyLine).filter(
+            stock.StockDailyLine.trade_date == trade_date).all()
+        return result
+
+
+def get_tscode_day_lines_one_day(trade_date):
+    logging.debug("get all day line data for $today: ", trade_date)
+    with session_scope() as session:
+        result = session.query(stock.StockDailyLine.ts_code).filter(
+            stock.StockDailyLine.trade_date == trade_date).all()
         return result

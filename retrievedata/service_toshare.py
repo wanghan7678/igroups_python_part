@@ -64,7 +64,7 @@ def read_stock_day_line(code, start, end):
 
 def read_stock_day_line_one(input_date):
     pro = get_tushare_api()
-    data = pro.daily(date=input_date)
+    data = pro.daily(trade_date=input_date)
     if data.empty:
         print("stock daily line is empty.  date = " + input_date)
     lines = []
@@ -82,11 +82,13 @@ def read_stock_day_line_one(input_date):
         item.vol = Util.to_float(data.iat[i, 9])
         item.amount = Util.to_float(data.iat[i, 10])
         lines.append(item)
+    print('size of line: $size', len(lines))
     return lines
 
-def read_exchange_calendar():
+
+def read_exchange_calendar(start_d, end_d):
     pro = get_tushare_api()
-    data = pro.trade_cal(exchange='', start_date='20180101', end_date='20221231')
+    data = pro.trade_cal(exchange='', start_date=start_d, end_date=end_d)
     if data.empty:
         print("stock basic list is empty.  tushare.")
     dates = []
