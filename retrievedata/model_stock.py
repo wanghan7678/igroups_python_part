@@ -3,7 +3,6 @@ from __future__ import unicode_literals, absolute_import
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 
-
 ModelBase = declarative_base()
 
 
@@ -51,8 +50,7 @@ class StockSignals(ModelBase):
 
 class SignalType(ModelBase):
     __tablename__ = 'signal_type'
-    id = Column(Integer, primary_key=True)
-    code = Column(Integer)
+    code = Column(Integer, primary_key=True)
     name = Column(String(length=45))
     english_name = Column(String(length=45))
     direction = Column(Integer)
@@ -76,10 +74,29 @@ class Prediction(ModelBase):
     label_value = Column(Float)
 
 
-
 class ExchangeCalendar(ModelBase):
     __tablename__ = 'exchange_calendar'
     id = Column(Integer, primary_key=True)
     exchange = Column(String(length=45))
     date = Column(DateTime)
     is_open = Column(Boolean)
+
+
+class IndustryClass(ModelBase):
+    __tablename__ = 'industry_class'
+    id = Column(Integer, primary_key=True)
+    index_code = Column(String(length=45))
+    industry_name = Column(String(length=45))
+    level = Column(String(length=45))
+    industry_code = Column(String(length=45))
+    is_pub = Column(Boolean)
+    parent_code = Column(String(length=45))
+
+
+class IndustryContains(ModelBase):
+    __tablename__ = 'industry_contains'
+    id = Column(Integer, primary_key=True)
+    index_code = Column(String(length=45))
+    con_code = Column(String(length=45))
+    in_date = Column(DateTime)
+    is_new = Column(String(length=45))

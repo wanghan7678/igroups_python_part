@@ -1,17 +1,16 @@
-import sys
-import traceback
+
 
 import sqlalchemy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
-from sqlalchemy.sql import func
 
-import model_stock as stock
+
+import retrievedata.model_stock as stock
 import Config as Cfg
 import logging
 
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+# logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
 def get_session():

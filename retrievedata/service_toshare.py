@@ -1,6 +1,6 @@
 import tushare as tu
 
-import model_stock as stock
+import retrievedata.model_stock as stock
 import Config as cfg
 import Util
 
@@ -99,3 +99,35 @@ def read_exchange_calendar(start_d, end_d):
         item.is_open = Util.int_to_bool(data.iat[i, 2])
         dates.append(item)
     return dates
+
+
+def read_industry_all():
+    return read_industry_class('L1') + read_industry_class('L2') + read_industry_class('L3')
+
+
+def read_industry_class(level):
+    datas = []
+    pro = get_tushare_api()
+    data = pro.index_classify(level=level, src='SW2021')
+    if data.empty:
+        print("stock basic list is empty.  tushare.")
+    for i in range(0, len(data)):
+        item = stock.ExchangeCalendar()
+        item.exchange = data.iat[i, 0]
+        item.date = Util.date_cn2us(data.iat[i, 1])
+        item.is_open = Util.int_to_bool(data.iat[i, 2])
+        datas.append(item)
+
+
+def read_industry_con(index_code):
+    datas = []
+    pro = get_tushare_api()
+    data = pro.index_member(index_code)
+    if data.empty:
+        print("stock basic list is empty.  tushare.")
+    for i in range(0, len(data)):
+        item = stock()
+        item.exchange = data.iat[i, 0]
+        item.date = Util.date_cn2us(data.iat[i, 1])
+        item.is_open = Util.int_to_bool(data.iat[i, 2])
+        datas.append(item)

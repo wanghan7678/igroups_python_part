@@ -1,32 +1,71 @@
+import sys
+
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-TECH_BULLISH_WHITE = 10010
-TECH_BEARISH_BLACK = 10020
-TECH_DOJI = 10030
-TECH_LONG_LEGGED_DOJI = 10040
-TECH_GRAVESTONE_DOJI = 10050
-TECH_SPINNING_TOP = 10060
-TECH_SHOOTING_STAR = 10070
-TECH_HANGING_MAN = 10080
-TECH_PIERCING = 10090
-TECH_DARK_CLOUD_COVER = 10100
-TECH_HARAMI_CROSS = 10110
-TECH_HARAMI = 10120
-TECH_TWO_BLACK_CROWS = 10130
-TECH_BEARISH_ENFULFING = 10140
-TECH_BULLISH_ENGULFING = 10150
-TECH_MORNING_STAR = 10160
-TECH_EVENING_STAR = 10170
-TECH_THREE_WHITE_SOLDIERS = 10180
-TECH_THREE_BLACK_CROWS = 10190
+TRENDLINE_INTERV = 10
+
+RESISTENCE_LINE_DAYS = 60
+SUPPORT_LINE_DAYS = 60
+
+CANDLE_BULLISH_WHITE = 10010
+CANDLE_BEARISH_BLACK = 10020
+CANDLE_DOJI = 10030
+CANDLE_LONG_LEGGED_DOJI = 10040
+CANDLE_GRAVESTONE_DOJI = 10050
+CANDLE_SPINNING_TOP = 10060
+CANDLE_SHOOTING_STAR = 10070
+CANDLE_HANGING_MAN = 10080
+CANDLE_PIERCING = 10090
+CANDLE_DARK_CLOUD_COVER = 10100
+CANDLE_HARAMI_CROSS = 10110
+CANDLE_HARAMI = 10120
+CANDLE_TWO_BLACK_CROWS = 10130
+CANDLE_BEARISH_ENFULFING = 10140
+CANDLE_BULLISH_ENGULFING = 10150
+CANDLE_MORNING_STAR = 10160
+CANDLE_EVENING_STAR = 10170
+CANDLE_THREE_WHITE_SOLDIERS = 10180
+CANDLE_THREE_BLACK_CROWS = 10190
+
+CANDLE_GAP_UP = 10200
+CANDLE_GAP_DOWN = 10210
 
 CHART_5D_UPTREND = 20010
 CHART_5D_DOWNTREND = 20020
 CHART_5D_HORIZONTAL = 20030
 CHART_5D_REG = 20040
 
-CHART_GAP = 20050
+CHART_10D_UPTREND = 20050
+CHART_10D_DOWNTREND = 20060
+CHART_10D_HORIZONTAL = 20070
+CHART_10D_REG = 20080
+
+CHART_20D_UPTREND = 20090
+CHART_20D_DOWNTREND = 20100
+CHART_20D_HORIZONTAL = 20110
+CHART_20D_REG = 20120
+
+CHART_60D_UPTREND = 20130
+CHART_60D_DOWNTREND = 20140
+CHART_60D_HORIZONTAL = 20150
+CHART_60D_REG = 20160
+
+CHART_60_RESISTANCE_UP = 21100
+CHART_60_SUPPORT_DOWN = 21110
+
+CHART_RECTANGLE = 22100
+CHART_RISING_CHANEL = 22110
+CHART_DOWNWARD_CHANEL = 22120
+CHART_TRIANGLE = 22130
+CHART_TRIANGLE_ASCENDING = 22140
+CHART_TRIANGLE_DESCENDING = 22150
+CHART_TRIANGLE_SYMMETRICAL = 22160
+CHART_TRIANGLE_ENLARGE = 22170
+
+DIRECTION_UP = 1
+DIRECTION_DOWN = 2
+DIRECTION_HORIZON = 3
 
 
 class TechSignalResolver:
@@ -44,7 +83,7 @@ class TechSignalResolver:
         self.pre2_close = data[8]
         self.pre2_open = data[9]
         self.pre2_high = data[10]
-        self.pre2_low = data[7]
+        self.pre2_low = data[11]
 
     def if_bullish_white(self):
         ratio = (self.high - self.low) / self.low
@@ -227,45 +266,64 @@ class TechSignalResolver:
             return body1 > body2 > body3 and self.pre2_open > self.pre_open > self.pre2_close > self.pre_close and self.pre_open > self.open > self.pre_close > self.close
         return False
 
+    def if_gap_up(self):
+        return self.low > self.pre_high
+
+    def if_gap_down(self):
+        return self.high < self.pre_low
+
     def cal_signals(self):
         signals = []
         if self.if_bullish_white():
-            signals.append(TECH_BULLISH_WHITE)
+            signals.append(CANDLE_BULLISH_WHITE)
         if self.if_bearish_black():
-            signals.append(TECH_BEARISH_BLACK)
+            signals.append(CANDLE_BEARISH_BLACK)
         if self.if_doji():
-            signals.append(TECH_DOJI)
+            signals.append(CANDLE_DOJI)
         if self.if_long_legged_doji():
-            signals.append(TECH_LONG_LEGGED_DOJI)
+            signals.append(CANDLE_LONG_LEGGED_DOJI)
         if self.if_gravestone_doji():
-            signals.append(TECH_GRAVESTONE_DOJI)
+            signals.append(CANDLE_GRAVESTONE_DOJI)
         if self.if_shooting_star():
-            signals.append(TECH_SHOOTING_STAR)
+            signals.append(CANDLE_SHOOTING_STAR)
         if self.if_hanging_man():
-            signals.append(TECH_HANGING_MAN)
+            signals.append(CANDLE_HANGING_MAN)
         if self.if_piercing_line():
-            signals.append(TECH_PIERCING)
+            signals.append(CANDLE_PIERCING)
         if self.if_dark_cloud_cover():
-            signals.append(TECH_DARK_CLOUD_COVER)
+            signals.append(CANDLE_DARK_CLOUD_COVER)
         if self.if_harami_cross():
-            signals.append(TECH_HARAMI_CROSS)
+            signals.append(CANDLE_HARAMI_CROSS)
         if self.if_harami():
-            signals.append(TECH_HARAMI)
+            signals.append(CANDLE_HARAMI)
         if self.if_tow_black_crows():
-            signals.append(TECH_TWO_BLACK_CROWS)
+            signals.append(CANDLE_TWO_BLACK_CROWS)
         if self.if_bearish_engulfing():
-            signals.append(TECH_BEARISH_ENFULFING)
+            signals.append(CANDLE_BEARISH_ENFULFING)
         if self.if_bullish_engulfing():
-            signals.append(TECH_BULLISH_ENGULFING)
+            signals.append(CANDLE_BULLISH_ENGULFING)
         if self.if_morning_star():
-            signals.append(TECH_MORNING_STAR)
+            signals.append(CANDLE_MORNING_STAR)
         if self.if_evening_star():
-            signals.append(TECH_EVENING_STAR)
+            signals.append(CANDLE_EVENING_STAR)
         if self.if_three_white_soldiers():
-            signals.append(TECH_THREE_WHITE_SOLDIERS)
+            signals.append(CANDLE_THREE_WHITE_SOLDIERS)
         if self.if_three_black_crows():
-            signals.append(TECH_THREE_BLACK_CROWS)
+            signals.append(CANDLE_THREE_BLACK_CROWS)
+        if self.if_gap_up():
+            signals.append(CANDLE_GAP_UP)
+        if self.if_gap_down():
+            signals.append(CANDLE_GAP_DOWN)
         return signals
+
+
+def _linear_regression(part):
+    x = np.arange(len(part)).reshape(len(part), 1)
+    model = LinearRegression()
+    reg = model.fit(x, part)
+    score = reg.score(x, part)
+    pred = reg.predict([[len(part) + 1]])
+    return [score, model.coef_[0], pred[0]]
 
 
 class ChartPatternsResolver:
@@ -275,30 +333,73 @@ class ChartPatternsResolver:
         self.close = data
 
     def trend_line(self):
-        x = np.arange(len(self.close)).reshape(len(self.close), 1)
-        model = LinearRegression()
-        reg = model.fit(x, self.close)
-        score = reg.score(x, self.close)
-        pred = reg.predict([[len(self.close) + 1]])
-        return [score, model.coef_[0], pred[0]]
+        return _linear_regression(self.close)
 
-    def get_trend(self):
+    # resistance line: the line created by the highest and the 2nd highest.
+    #   2nd highest must be at least 10 days far away.
+    def resistance_line(self):
+        if len(self.close) < 60:
+            print('close is less than 60')
+            return None
+        c = self.close[0:-1]
+        a = np.array(c)
+        c2 = []
+        y1 = np.max(a)
+        x1 = np.argmax(a)
+        if x1 + (TRENDLINE_INTERV + 1) < len(c) and x1 - TRENDLINE_INTERV > 0:
+            c2 = c[0:(x1 - TRENDLINE_INTERV)] + ([0] * (2 * TRENDLINE_INTERV + 1)) + c[x1 + TRENDLINE_INTERV + 1:]
+        elif x1 - TRENDLINE_INTERV > 0:
+            n = len(c) - (x1 - TRENDLINE_INTERV)
+            c2 = c[0:(x1 - TRENDLINE_INTERV)] + [0] * n
+        elif x1 + (TRENDLINE_INTERV + 1) < len(c):
+            c2 = [0] * (x1 + TRENDLINE_INTERV + 1) + c[x1 + (TRENDLINE_INTERV + 1):]
+        a2 = np.array(c2)
+        y2 = np.max(a2)
+        x2 = np.argmax(a2)
+        # y2 = np.sort(a)[-2]
+        # x2 = np.argsort(a)[-2]
+        if x1 == x2:
+            return y1
+        coef = (y1 - y2) / (x1 - x2)
+        b = y1 - coef * x1
+        # return [coef, b, x(n+1), y(n+1)]
+        return [coef, b, len(c), len(c) * coef + b]
+
+    # support line: the line created by the lowest and the 2nd lowest.
+    def support_line(self):
+        print(self.close)
+        if self.close is not None and len(self.close) < 60:
+            return None
+        c = self.close[0:-1]
+        a = np.array(c)
+        c2 = []
+        y1 = np.min(a)
+        x1 = np.argmin(a)
+        if x1 + (TRENDLINE_INTERV + 1) < len(c) and x1 - TRENDLINE_INTERV > 0:
+            c2 = c[0:(x1 - TRENDLINE_INTERV)] + ([sys.maxsize] * (2 * TRENDLINE_INTERV + 1)) + c[
+                                                                                               x1 + TRENDLINE_INTERV + 1:]
+        elif x1 - TRENDLINE_INTERV > 0:
+            n = len(c) - (x1 - TRENDLINE_INTERV)
+            c2 = c[0:(x1 - TRENDLINE_INTERV)] + [sys.maxsize] * n
+        elif x1 + (TRENDLINE_INTERV + 1) < len(c):
+            c2 = [sys.maxsize] * (x1 + TRENDLINE_INTERV + 1) + c[x1 + (TRENDLINE_INTERV + 1):]
+        a2 = np.array(c2)
+        y2 = np.min(a2)
+        x2 = np.argmin(a2)
+        if x1 == x2:
+            return y1
+        coef = (y1 - y2) / (x1 - x2)
+        b = y1 - coef * x1
+        # return [coef, b, x(n+1), y(n+1)]
+        return [coef, b, len(c), len(c) * coef + b]
+
+    def get_trend_direction(self):
         result = self.trend_line()
         if result[0] > self.R_THRESHOLD:
             if result[1] > 0.3:
-                return CHART_5D_UPTREND
+                return DIRECTION_UP
             elif result[1] < - 0.3:
-                return CHART_5D_DOWNTREND
+                return DIRECTION_DOWN
             else:
-                return CHART_5D_HORIZONTAL
-        return None
-
-    def get_trend(self, result):
-        if result is not None and len(result) > 2 and result[0] > self.R_THRESHOLD:
-            if result[1] > 0.3:
-                return CHART_5D_UPTREND
-            elif result[1] < - 0.3:
-                return CHART_5D_DOWNTREND
-            else:
-                return CHART_5D_HORIZONTAL
-        return None
+                return DIRECTION_HORIZON
+        return -1

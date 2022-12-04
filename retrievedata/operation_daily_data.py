@@ -1,9 +1,8 @@
-import service_dao as dao
-import service_toshare as tu
-import service_signals as sig
-import service_predict as predict
+import retrievedata.service_dao as dao
+import retrievedata.service_toshare as tu
+import retrievedata.service_signals as sig
+import retrievedata.service_predict as predict
 
-back_days = 5
 
 def update_stock_basic():
     stocks_from_tushare = tu.read_stockbasic()
@@ -37,7 +36,6 @@ def load_ta_signals_oneday(date):
     ts_codes = dao.get_tscode_day_lines_one_day(date)
     for code in ts_codes:
         tsc = code[0]
-        print(tsc)
         rs = dao.get_day_lines_4prices(tsc, date, 3)
         data = []
         for row in rs:
@@ -53,15 +51,29 @@ def load_chart_signals_oneday(date):
     ts_codes = dao.get_tscode_day_lines_one_day(date)
     for code in ts_codes:
         tsc = code[0]
-        rs = dao.get_day_lines_close(tsc, date, back_days)
-        data = []
-        for row in rs:
-            data.append(row[0])
-        regs = sig.calculate_chart_5d_regression(back_days, data)
-        sigs = sig.calculate_chart_signals(tsc, date, regs)
-        preds = predict.calculate_5d_regression(tsc, date, regs)
-        print("load sigs and predicts: $ts_code, $date, $line: ", tsc, date, regs)
-        dao.add_item_list(sigs)
-        dao.add_item_list(preds)
+        cal_regression(ts_code=tsc, date=date, back_days=5)
+        cal_regression(ts_code=tsc, date=date, back_days=10)
+        cal_regression(ts_code=tsc, date=date, back_days=20)
+        cal_regression(ts_code=tsc, date=date, back_days=60)
+        print(tsc + ", " + str(date))
+        cal_trends(ts_code=tsc, date=date, back_days=60)
 
 
+def cal_regression(ts_code, date, back_days):
+    rs = dao.get_day_lines_close(ts_code=ts_code, trade_date=date, back_days=back_days)
+    data = []
+    for row in rs:
+        data.append(row[0])
+    sigs = sig.calculate_chart_reg_signals(ts_code=ts_code, trade_date=date, back_days=back_days, data=data)
+    preds = predict.calculate_regression(ts_code=ts_code, trade_date=date, back_days=back_days, regression_data=data)
+    dao.add_item_list(sigs)
+    dao.add_item_list(preds)
+
+
+def cal_trends(ts_code, date, back_days):
+    rs = dao.get_day_lines_close(ts_code=ts_code, trade_date=date, back_days=back_days)
+    data = []
+    for row in rs:
+        data.append(row[0])
+    sigs = sig.calculate_trends_signals(ts_code, date, data)
+    dao.add_item_list(sigs)
